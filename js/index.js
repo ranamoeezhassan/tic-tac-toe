@@ -5,6 +5,12 @@ const App = {
     resetBtn: document.querySelector("[data-id='reset-btn']"),
     newRoundBtn: document.querySelector("[data-id='new-round-btn']"),
     squares: document.querySelectorAll("[data-id='square']"),
+    modal: document.querySelector("[data-id='modal']"),
+    modalText: document.querySelector("[data-id='modal-text']"),
+    modalBtn: document.querySelector("[data-id='modal-btn']"),
+    turn: document.querySelector("[data-id='turn']"),
+    turnSymbol: document.querySelector("[data-id='turn-symbol']"),
+    turnText: document.querySelector("[data-id='turn-text']"),
   },
 
   state: {
@@ -20,8 +26,8 @@ const App = {
       [2, 5, 8],
       [3, 5, 7],
       [3, 6, 9],
-      [14, 5, 6],
-      [17, 8, 9],
+      [4, 5, 6],
+      [7, 8, 9],
     ];
 
     const p1 = moves.filter((move) => move.playerId === 1);
@@ -41,11 +47,14 @@ const App = {
       );
 
       if (p1Result) winner = 1;
-      if (p2Result) winner = 2; 
+      if (p2Result) winner = 2;
     });
 
     return {
-      status: (p1Moves.length + p2Moves.length === 9) || (winner !== null) ? "complete" : "in-progress",
+      status:
+        p1Moves.length + p2Moves.length === 9 || winner !== null
+          ? "complete"
+          : "in-progress",
       winner,
     };
   },
@@ -68,6 +77,18 @@ const App = {
 
     App.$.newRoundBtn.addEventListener("click", () => {
       console.log("New round");
+    });
+
+    App.$.modalBtn.addEventListener("click", () => {
+      App.state.moves = [];
+      App.$.squares.forEach((square) => {
+        // Found a better to remove all children
+        square.replaceChildren();
+        // while (square.firstChild){
+        //   square.firstChild.remove();
+        // }
+      });
+      App.$.modal.classList.add("hidden");
     });
 
     App.$.squares.forEach((square) => {
@@ -97,38 +118,44 @@ const App = {
             ? 1
             : getOppositePlayer(lastMove.playerId);
 
-        const child = document.createElement("i");
+        const squareIcon = document.createElement("i");
+        const turnIcon = document.createElement("i");
 
         // If player 1, put yellow x marker and change current player
+        // <i data-id="turn-symbol" class="fa-solid fa-x turquoise" style="color: var(--yellow)"></i>
+        // <p data-id="turn-text">Player 1, you're up!</p>
         if (currentPlayer === 1) {
-          child.classList.add("fa-solid", "fa-x", "yellow");
+          squareIcon.classList.add("fa-solid", "fa-x", "yellow");
+          turnIcon.classList.add("fa-solid", "fa-o", "turquoise");
         } else {
-          child.classList.add("fa-solid", "fa-o", "turquoise");
+          squareIcon.classList.add("fa-solid", "fa-o", "turquoise");
+          turnIcon.classList.add("fa-solid", "fa-x", "yellow");
         }
+
+        square.appendChild(squareIcon);
+        App.$.turnText.textContent = `Player ${getOppositePlayer(currentPlayer)}, you're up!`;
+        App.$.turn.classList.toggle("yellow");
+        App.$.turn.classList.toggle("turquoise");
+        App.$.turn.replaceChildren(turnIcon, App.$.turnText);
 
         App.state.moves.push({
           squareId: +square.id,
           playerId: currentPlayer,
         });
-        square.appendChild(child);
-
+      
 
         const game = App.getGameStatus(App.state.moves);
 
-        if (game.status === "complete"){
-          const modalContainer = document.querySelector(".modal");
-          const pElement = modalContainer.querySelector("p");
-
-          if (game.winner === 1){
-            pElement.innerHTML = "Player 1 Wins";
-          } else if (game.winner === 2){
-            pElement.innerHTML = "Player 2 Wins";
+        if (game.status === "complete") {
+          let message = "";
+          if (game.winner) {
+            message = `Player ${game.winner} wins!`;
           } else {
-            pElement.innerHTML = "It's a draw";
+            message = "Tie";
           }
-          modalContainer.classList.toggle("hidden");
+          App.$.modalText.textContent = message;
+          App.$.modal.classList.remove("hidden");
         }
-
       });
     });
   },

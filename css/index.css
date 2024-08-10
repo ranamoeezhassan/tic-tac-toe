@@ -77,8 +77,6 @@ button:hover {
 
 /* Top Row Styles */
 .turn {
-    color: var(--yellow);
-
     grid-column-start: 1;
     grid-column-end: 3;
     align-self: center;
@@ -100,7 +98,7 @@ button:hover {
     }
 }
 
-.turn p {
+.animate-text {
     font-size: 14px;
     animation: 0.6s ease-in-out turn-text-animation;
 }
@@ -118,6 +116,12 @@ button:hover {
         scale: 100%;
     }
 }
+
+/* .animate-symbol {
+    font-size: 1.8rem;
+    margin-left: 10px;
+    animation: 0.6s ease-in-out turn-icon-animation;
+} */
 
 .turn i {
     font-size: 1.8rem;
